@@ -1,11 +1,15 @@
+import styled from "styled-components";
 import SearchBar from "../components/SearchBar";
-import styles from "./Home.module.css";
+
+const Wrap = styled.div`
+    padding: 40px;
+`;
 
 export default function Home() {
     return (
-        <div className={styles.wrap}>
+        <Wrap>
             <h2>Google Books 검색</h2>
             <SearchBar />
-        </div>
+        </Wrap>
     );
 }

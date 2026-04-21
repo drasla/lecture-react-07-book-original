@@ -1,9 +1,38 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import styled from "styled-components";
 import type { BookItem } from "../types";
-import styles from "./Detail.module.css"; // CSS Module import
+import { useNavigate, useParams } from "react-router";
 
-const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+const Wrap = styled.div`
+    padding: 30px;
+`;
+
+const Cover = styled.img`
+    width: 200px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+`;
+
+const BackButton = styled.button`
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #f3f3f3;
+    color: #333;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+        background: #e0e0e0;
+        border-color: #999;
+    }
+`;
 
 export default function Detail() {
     const { id } = useParams<{ id: string }>();
@@ -12,29 +41,24 @@ export default function Detail() {
 
     useEffect(() => {
         if (!id) return;
-        fetch(`https://www.googleapis.com/books/v1/volumes/${id}?key=${API_KEY}`)
+        fetch(`https://www.googleapis.com/books/v1/volumes/${id}`)
             .then(res => res.json())
             .then((data: BookItem) => setBook(data))
             .catch(() => setBook(null));
     }, [id]);
 
-    if (!book) return <div className={styles.wrap}>Loading...</div>;
+    if (!book) return <Wrap>Loading...</Wrap>;
 
     const info = book.volumeInfo;
     const cover = info.imageLinks?.thumbnail || "https://via.placeholder.com/200x300?text=No+Cover";
 
     return (
-        <div className={styles.wrap}>
-            <button className={styles.backButton} onClick={() => navigate(-1)}>
-                ← 뒤로 가기
-            </button>
-
+        <Wrap>
+            <BackButton onClick={() => navigate(-1)}>← 뒤로 가기</BackButton>
             <h2>{info.title}</h2>
-
-            <img className={styles.cover} src={cover} alt={info.title} />
-
+            <Cover src={cover} alt={info.title} />
             <p>{info.authors?.join(", ")}</p>
-            <p dangerouslySetInnerHTML={{ __html: info.description || "설명 없음" }}></p>
-        </div>
+            <p>{info.description || "설명 없음"}</p>
+        </Wrap>
     );
 }

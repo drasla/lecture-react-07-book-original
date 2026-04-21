@@ -1,9 +1,32 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import styled from "styled-components";
 import type { SearchResult, BookItem } from "../types";
-import styles from "./Search.module.css"; // CSS Module import
+import { Link, useSearchParams } from "react-router";
 
-const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+const Wrap = styled.div`
+    padding: 30px;
+`;
+
+const Item = styled(Link)`
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    background: white;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    &:hover {
+        background: #f3f3f3;
+    }
+`;
+
+const Cover = styled.img`
+    width: 60px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 4px;
+`;
 
 export default function Search() {
     const [params] = useSearchParams();
@@ -12,7 +35,7 @@ export default function Search() {
 
     useEffect(() => {
         if (!q) return;
-        fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=20&key=${API_KEY}`)
+        fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=20`)
             .then(res => res.json())
             .then((data: SearchResult) => setBooks(data.items || []))
             .catch(() => setBooks([]));
@@ -22,18 +45,20 @@ export default function Search() {
         item.volumeInfo.imageLinks?.thumbnail || "https://via.placeholder.com/60x90?text=No+Cover";
 
     return (
-        <div className={styles.wrap}>
+        <Wrap>
             <h3>검색 결과: {q}</h3>
 
             {books.map(b => (
-                <Link key={b.id} to={`/detail/${b.id}`} className={styles.item}>
-                    <img src={getCover(b)} alt={b.volumeInfo.title} className={styles.cover} />
+                <Item key={b.id} to={`/detail/${b.id}`}>
+                    <Cover src={getCover(b)} alt={b.volumeInfo.title} />
                     <div>
-                        <div className={styles.title}>{b.volumeInfo.title}</div>
-                        <div className={styles.authors}>{b.volumeInfo.authors?.join(", ")}</div>
+                        <div>{b.volumeInfo.title}</div>
+                        <div style={{ fontSize: 12, color: "#555" }}>
+                            {b.volumeInfo.authors?.join(", ")}
+                        </div>
                     </div>
-                </Link>
+                </Item>
             ))}
-        </div>
+        </Wrap>
     );
 }
